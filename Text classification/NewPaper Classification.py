@@ -9,17 +9,11 @@ import seaborn as sns
 import re
 import nltk
 ## for bag-of-words
-from sklearn import feature_extraction, model_selection, naive_bayes, pipeline, manifold, preprocessing
-## for explainer
-from lime import lime_text
+from sklearn import model_selection,manifold
 ## for word embedding
 import gensim
-import gensim.downloader as gensim_api
 ## for deep learning
 from tensorflow.keras import models, layers, preprocessing as kprocessing
-from tensorflow.keras import backend as K
-## for bert language model
-import transformers
 json_list = []
 with open('News_Category_Dataset.json', mode='r', errors='ignore') as json_file:
     for element in json_file:
