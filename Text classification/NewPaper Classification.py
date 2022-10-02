@@ -20,37 +20,37 @@ from tensorflow.keras import models, layers, preprocessing as kprocessing
 from tensorflow.keras import backend as K
 ## for bert language model
 import transformers
-lst_dics = []
+json_list = []
 with open('News_Category_Dataset.json', mode='r', errors='ignore') as json_file:
-    for dic in json_file:
-        lst_dics.append( json.loads(dic) )
+    for element in json_file:
+        json_list.append( json.loads(element) )
 ## print the first one
-print(lst_dics[0])
+print(json_list[0])
 
-dtf = pd.DataFrame(lst_dics)
+df = pd.DataFrame(json_list)
 ## filter categories
-dtf = dtf[ dtf["category"].isin(['ENTERTAINMENT','POLITICS','TECH']) ][["category","headline"]]
+df = df[ df["category"].isin(['ENTERTAINMENT','POLITICS','TECH']) ][["category","headline"]]
 ## rename columns
-dtf = dtf.rename(columns={"category":"y", "headline":"text"})
+df = df.rename(columns={"category":"y", "headline":"X"})
 ## print 5 random rows
-dtf.sample(5)
+df.sample(5)
 fig, ax = plt.subplots()
 fig.suptitle("y", fontsize=12)
-dtf["y"].reset_index().groupby("y").count().sort_values(by=
+df["y"].reset_index().groupby("y").count().sort_values(by=
        "index").plot(kind="barh", legend=False,
         ax=ax).grid(axis='x')
 plt.show()
 
 
-def utils_preprocess_text(text, flg_stemm=False, flg_lemm=True, lst_stopwords=None):
+def utils_preprocess_text(text, flg_stemm=False, flg_lemm=True, stopwords=None):
     ## clean (convert to lowercase and remove punctuations and   characters and thenstrip)
     text = re.sub(r'[^\w\s]', '', str(text).lower().strip())
 
     ## Tokenize (convert from string to list)
     lst_text = text.split()
     ## remove Stopwords
-    if lst_stopwords is not None:
-        lst_text = [word for word in lst_text if word not in lst_stopwords]
+    if stopwords is not None:
+        lst_text = [word for word in lst_text if word not in stopwords]
 
     ## Stemming (remove -ing, -ly, ...)
     if flg_stemm == True:
@@ -66,16 +66,16 @@ def utils_preprocess_text(text, flg_stemm=False, flg_lemm=True, lst_stopwords=No
     text = " ".join(lst_text)
     return text
 
-lst_stopwords = nltk.corpus.stopwords.words("english")
-dtf["text_clean"] = dtf["text"].apply(lambda x:
+stopwords = nltk.corpus.stopwords.words("english")
+df["X_clean"] = df["X"].apply(lambda x:
           utils_preprocess_text(x, flg_stemm=False, flg_lemm=True,
-          lst_stopwords=lst_stopwords))
-print(dtf.head())
-dtf_train, dtf_test = model_selection.train_test_split(dtf, test_size=0.3)
+          stopwords=stopwords))
+print(df.head())
+x_train, x_test = model_selection.train_test_split(df, test_size=0.3)
 ## get target
-y_train = dtf_train["y"].values
-y_test = dtf_test["y"].values
-corpus = dtf_train["text_clean"]
+y_train = x_train["y"].values
+y_test = x_test["y"].values
+corpus = x_train["X_clean"]
 
 ## create list of lists of unigrams
 lst_corpus = []
@@ -95,32 +95,33 @@ trigrams_detector = gensim.models.phrases.Phraser(trigrams_detector)
 nlp = gensim.models.word2vec.Word2Vec(lst_corpus, size=300,
             window=8, min_count=1, sg=1, iter=30)
 word = "data"
+print(nlp[word])
 fig = plt.figure()
-## word embedding
-tot_words = [word] + [tupla[0] for tupla in
-                 nlp.most_similar(word, topn=20)]
-X = nlp[tot_words]
+# ## word embedding
+total_words = [word] + [element[0] for element in nlp.wv.most_similar(word, topn=20)]
+X = nlp[total_words]
 ## pca to reduce dimensionality from 300 to 3
-# pca = manifold.TSNE(perplexity=40, n_components=3, init='pca')
-# X = pca.fit_transform(X)
-# ## create dtf
-# dtf_ = pd.DataFrame(X, index=tot_words, columns=["x","y","z"])
-# dtf_["input"] = 0
-# dtf_["input"].iloc[0:1] = 1
-# ## plot 3d
-# from mpl_toolkits.mplot3d import Axes3D
-# ax = fig.add_subplot(111, projection='3d')
-# ax.scatter(dtf_[dtf_["input"]==0]['x'],
-#            dtf_[dtf_["input"]==0]['y'],
-#            dtf_[dtf_["input"]==0]['z'], c="black")
-# ax.scatter(dtf_[dtf_["input"]==1]['x'],
-#            dtf_[dtf_["input"]==1]['y'],
-#            dtf_[dtf_["input"]==1]['z'], c="red")
-# ax.set(xlabel=None, ylabel=None, zlabel=None, xticklabels=[],
-#        yticklabels=[], zticklabels=[])
-# for label, row in dtf_[["x","y","z"]].iterrows():
-#     x, y, z = row
-#     ax.text(x, y, z, s=label)
+pca = manifold.TSNE(perplexity=40, n_components=3, init='pca')
+X = pca.fit_transform(X)
+## create df
+df_ = pd.DataFrame(X, index=total_words, columns=["x","y","z"])
+df_["input"] = 0
+df_["input"].iloc[0:1] = 1
+## plot 3d
+from mpl_toolkits.mplot3d import Axes3D
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(df_[df_["input"]==0]['x'],
+           df_[df_["input"]==0]['y'],
+           df_[df_["input"]==0]['z'], c="black")
+ax.scatter(df_[df_["input"]==1]['x'],
+           df_[df_["input"]==1]['y'],
+           df_[df_["input"]==1]['z'], c="red")
+ax.set(xlabel=None, ylabel=None, zlabel=None, xticklabels=[],
+       yticklabels=[], zticklabels=[])
+for label, row in df_[["x","y","z"]].iterrows():
+    x, y, z = row
+    ax.text(x, y, z, s=label)
+plt.show()
 ## tokenize text
 tokenizer = kprocessing.text.Tokenizer(lower=True, split=' ',
                      oov_token="NaN",
@@ -137,20 +138,20 @@ plt.show()
 i = 0
 
 ## list of text: ["I like this", ...]
-len_txt = len(dtf_train["text_clean"].iloc[i].split())
-print("from: ", dtf_train["text_clean"].iloc[i], "| len:", len_txt)
+len_txt = len(x_train["X_clean"].iloc[i].split())
+print("from: ", x_train["X_clean"].iloc[i], "| len:", len_txt)
 
 ## sequence of token ids: [[1, 2, 3], ...]
 len_tokens = len(X_train[i])
 print("to: ", X_train[i], "| len:", len(X_train[i]))
 
 ## vocabulary: {"I":1, "like":2, "this":3, ...}
-print("check: ", dtf_train["text_clean"].iloc[i].split()[0],
+print("check: ", x_train["X_clean"].iloc[i].split()[0],
       " -- idx in vocabulary -->",
-      dic_vocabulary[dtf_train["text_clean"].iloc[i].split()[0]])
+      dic_vocabulary[x_train["X_clean"].iloc[i].split()[0]])
 
 print("vocabulary: ", dict(list(dic_vocabulary.items())[0:5]), "... (padding element, 0)")
-corpus = dtf_test["text_clean"]
+corpus = x_test["X_clean"]
 
 ## create list of n-grams
 lst_corpus = []
@@ -197,14 +198,6 @@ x = layers.Embedding(input_dim=embeddings.shape[0],
                      output_dim=embeddings.shape[1],
                      weights=[embeddings],
                      input_length=15, trainable=False)(x_in)
-## apply attention
-x = attention_layer(x, neurons=15)
-## 2 layers of bidirectional lstm
-x = layers.Bidirectional(layers.LSTM(units=15, dropout=0.2,
-                         return_sequences=True))(x)
-x = layers.Bidirectional(layers.LSTM(units=15, dropout=0.2))(x)
-## final dense layers
-x = layers.Dense(64, activation='relu')(x)
 y_out = layers.Dense(3, activation='softmax')(x)
 ## compile
 model = models.Model(x_in, y_out)
