@@ -70,6 +70,7 @@ x_train, x_test = model_selection.train_test_split(df, test_size=0.3)
 y_train = x_train["y"].values
 y_test = x_test["y"].values
 corpus = x_train["X_clean"]
+#a
 
 ## create list of lists of unigrams
 lst_corpus = []
