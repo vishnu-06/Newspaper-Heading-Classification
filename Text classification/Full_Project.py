@@ -14,7 +14,6 @@ from sklearn import model_selection,manifold, preprocessing, metrics
 import gensim
 ## for deep learning
 from tensorflow.keras import models, layers, preprocessing as kprocessing, backend as K
-
 from imblearn.over_sampling import RandomOverSampler
 json_list = []
 with open('News_Category_Dataset.json', mode='r', errors='ignore') as json_file:
@@ -25,7 +24,7 @@ print(json_list[0])
 
 df = pd.DataFrame(json_list)
 ## filter categories
-df = df[ df["category"].isin(['ENTERTAINMENT','POLITICS','TECH']) ][["category","headline"]]
+df = df[ df["category"].isin(['POLITICS','WELLNESS','ENTERTAINMENT','TRAVEL','STYLE & BEAUTY','QUEER VOICES','FOOD & DRINK','SPORTS','HOME & LIVING']) ][["category","headline"]]
 ## rename columns
 df = df.rename(columns={"category":"y", "headline":"X"})
 ## print 5 random rows
@@ -67,6 +66,8 @@ df["X_clean"] = df["X"].apply(lambda x:
           utils_preprocess_text(x, flg_stemm=False, flg_lemm=True,
           stopwords=stopwords))
 print(df.head())
+
+
 x_train, x_test = model_selection.train_test_split(df, test_size=0.3)
 ## get target
 y_train = x_train["y"].values
@@ -196,7 +197,7 @@ x = layers.Bidirectional(layers.GRU(units=15, dropout=0.2,
 x = layers.Bidirectional(layers.GRU(units=15, dropout=0.2))(x)
 ## final dense layers
 x = layers.Dense(64, activation='relu')(x)
-y_out = layers.Dense(3, activation='softmax')(x)
+y_out = layers.Dense(9, activation='softmax')(x)#will change with number of categories
 ## compile
 model = models.Model(x_in, y_out)
 model.compile(loss='sparse_categorical_crossentropy',
