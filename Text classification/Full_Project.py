@@ -15,34 +15,58 @@ import gensim
 ## for deep learning
 from tensorflow.keras import models, layers, preprocessing as kprocessing, backend as K
 from imblearn.over_sampling import RandomOverSampler
+import time
+
 json_list = []
 with open('News_Category_Dataset.json', mode='r', errors='ignore') as json_file:
     for element in json_file:
         json_list.append( json.loads(element) )
 ## print the first one
-print(json_list[0])
+print("\n\n\n")
+print("First Record in Json Format : ",json_list[0],"\n")
 
 df = pd.DataFrame(json_list)
 ## filter categories
-df = df[ df["category"].isin(['POLITICS','WELLNESS','ENTERTAINMENT','TRAVEL','STYLE & BEAUTY','QUEER VOICES','FOOD & DRINK','SPORTS','HOME & LIVING']) ][["category","headline"]]
+df = df[ df["category"].isin(['POLITICS','WELLNESS','ENTERTAINMENT','TRAVEL','STYLE & BEAUTY','QUEER VOICES','FOOD & DRINK','SPORTS','HOME & LIVING', 'WEDDINGS']) ][["category","headline"]]
+print()
+print("Category Counts:")
+print("POLITICS :"+str(df["category"].value_counts()['POLITICS']))
+print("WELLNESS :"+str(df["category"].value_counts()['WELLNESS']))
+print("ENTERTAINMENT :"+str(df["category"].value_counts()['ENTERTAINMENT']))
+print("TRAVEL :"+str(df["category"].value_counts()['TRAVEL']))
+print("STYLE & BEAUTY :"+str(df["category"].value_counts()['STYLE & BEAUTY']))
+print("QUEER VOICES :"+str(df["category"].value_counts()['QUEER VOICES']))
+print("FOOD & DRINK :"+str(df["category"].value_counts()['FOOD & DRINK']))
+print("SPORTS :"+str(df["category"].value_counts()['SPORTS']))
+print("HOME & LIVING :"+str(df["category"].value_counts()['HOME & LIVING']))
+print("WEDDINGS :"+str(df["category"].value_counts()['WEDDINGS']))
+print()
+
+print("Total Records :"+str(df.shape[0]))
+print()
+print(df.head())
 ## rename columns
 df = df.rename(columns={"category":"y", "headline":"X"})
 ## print 5 random rows
-df.sample(5)
+print("\n 5 rows of Dataframe:")
+print(df.sample(5))
 fig, ax = plt.subplots()
-fig.suptitle("y", fontsize=12)
+fig.suptitle("Input Data", fontsize=12)
 df["y"].reset_index().groupby("y").count().sort_values(by=
        "index").plot(kind="barh", legend=False,
         ax=ax).grid(axis='x')
+plt.xlabel('Number of Data Items')
 plt.show()
 
 
 def utils_preprocess_text(text, flg_stemm=False, flg_lemm=True, stopwords=None):
-    ## clean (convert to lowercase and remove punctuations and   characters and thenstrip)
+
+    ## clean (convert to lowercase and remove punctuations and   characters and then strip)
     text = re.sub(r'[^\w\s]', '', str(text).lower().strip())
 
     ## Tokenize (convert from string to list)
     lst_text = text.split()
+
     ## remove Stopwords
     if stopwords is not None:
         lst_text = [word for word in lst_text if word not in stopwords]
@@ -197,7 +221,7 @@ x = layers.Bidirectional(layers.GRU(units=15, dropout=0.2,
 x = layers.Bidirectional(layers.GRU(units=15, dropout=0.2))(x)
 ## final dense layers
 x = layers.Dense(64, activation='relu')(x)
-y_out = layers.Dense(9, activation='softmax')(x)#will change with number of categories
+y_out = layers.Dense(10, activation='softmax')(x)#will change with number of categories
 ## compile
 model = models.Model(x_in, y_out)
 model.compile(loss='sparse_categorical_crossentropy',
@@ -210,10 +234,13 @@ dic_y_mapping = {n:label for n,label in
 inverse_dic = {v:k for k,v in dic_y_mapping.items()}
 y_train = np.array([inverse_dic[y] for y in y_train])
 ## training model
+tic = time.perf_counter()
 training = model.fit(x=X_train, y=y_train, batch_size=256,
-                     epochs=10, shuffle=True, verbose=2,
+                     epochs=50, shuffle=True, verbose=2,
                      validation_split=0.3)
 
+toc = time.perf_counter()
+print(f"Training time : {toc - tic:0.4f} seconds")
 
 ## plot loss and accuracy
 metricss = [k for k in training.history.keys() if ("loss" not in k) and ("val" not in k)]
@@ -244,7 +271,8 @@ predicted = [dic_y_mapping[np.argmax(pred)] for pred in
 i = 0
 txt_instance = x_test["X"].iloc[i]
 ## check true value and predicted value
-print("True:", y_test[i], "--> Pred:", predicted[i], "| Prob:", round(np.max(predicted_prob[i]),2))
+print("Input Data: ",txt_instance,"Actual Category:", y_test[i])
+print( "Predicted :", predicted[i], "| Prob:", round(np.max(predicted_prob[i]),2))
 
 
 def evaluate_multi_classif(y_test, predicted, predicted_prob, figsize=(15, 5)):
