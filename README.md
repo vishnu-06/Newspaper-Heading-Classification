@@ -3,7 +3,7 @@
 Despite its extensive content, unstructured text can be difficult to analyze and extract insights from due to its lack of structure. Almost any type of text can be organized, structured, and categorised with text classifiers. Text classification is widely used to analyse this unstructured text and classify them based on common topics. There are many sites that produce a lot of news every day today on the Internet. Additionally, user demand for information has been steadily increasing, thus it is critical that the news be classified to enable users to quickly and effectively obtain the information of interest. On this basis, the user's former interests could be utilised to discover subjects of untracked news and/or to generate customised suggestions using the machine learning model for automatic news classification. Hence, we propose creating an application for text classification that accurately classifies newspaper titles by topic. We aim to create a text classification application using word embedding and neural network algorithms.
 
 ## Dataset Used
-![image](https://user-images.githubusercontent.com/70327869/201009797-b2a77339-8953-4821-83da-90a8e4acecc4.png)
+![image](https://user-images.githubusercontent.com/70327869/201009864-2e832146-dc4a-4bed-a7a0-40cdc00d0c45.png)
 
 ## Flow Diagram
 ![image](https://user-images.githubusercontent.com/70327869/201008943-d1771f50-5b13-47e4-897b-ea0cd5721171.png)
