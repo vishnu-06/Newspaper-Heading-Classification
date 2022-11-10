@@ -9,7 +9,7 @@ Despite its extensive content, unstructured text can be difficult to analyze and
 ![image](https://user-images.githubusercontent.com/70327869/201008943-d1771f50-5b13-47e4-897b-ea0cd5721171.png)
 
 ## GRU Model
-![image](https://user-images.githubusercontent.com/70327869/201008232-5ca21116-c744-4f47-9597-ee6aa29a62c7.png)
+![image](https://user-images.githubusercontent.com/70327869/201009361-8d3a4882-9501-4177-89be-87f82499a972.png)
 
 ## Evaluation Metrics
 ![image](https://user-images.githubusercontent.com/70327869/201008332-5c8a29ad-275f-4f06-9a4a-0a77d42d580c.png)
@@ -28,4 +28,4 @@ Despite its extensive content, unstructured text can be difficult to analyze and
 
 ## Results
 
-We achieve a text-classification accuracy of 84% with 50 epochs using Bi-directional GRU with attention mechanism on 10 newspaper categories. We have achieved accuracies comparable to that of LSTM with 14% lesser training time. For future work, we aim to expand our categories and further increase the accuracy by increasing the number of epochs. 
+I have achieved a text-classification accuracy of 84% with 50 epochs using Bi-directional GRU with attention mechanism on 10 newspaper topics. The accuracies are comparable to that of LSTM with 14% lesser training time. For future work, I aim to expand the topics.
